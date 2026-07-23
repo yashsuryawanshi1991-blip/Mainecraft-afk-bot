@@ -1,61 +1,28 @@
-const mineflayer = require('mineflayer');
-const http = require('http');
+const mineflayer = require('mineflayer')
+const http = require('http')
 
-// 🌐 Render ke Port Warning ko fix karne ke liye Web Server:
-const PORT = process.env.PORT || 3000;
+// HTTP Server to keep Render awake
+const port = process.env.PORT || 8080
 http.createServer((req, res) => {
-  res.write("AFK Bot is Online 24/7!");
-  res.end();
-}).listen(PORT, () => {
-  console.log(`Web Server running on port ${PORT}`);
-});
+  res.write("AFK Bot is alive!")
+  res.end()
+}).listen(port)
 
-// ⚙️ Aapke Server Ki Details:
-const SERVER_HOST = 'Shardamc.aternos.me';
-const SERVER_PORT = 43181;
-const BOT_USERNAME = 'AFK_Bot_Yash';
-
-function startBot() {
-  console.log('Connecting bot to Shardamc server...');
-
+function createBot() {
   const bot = mineflayer.createBot({
-    host: SERVER_HOST,
-    port: SERVER_PORT,
-    username: BOT_USERNAME,
-    checkTimeoutInterval: 60 * 1000
-  });
+    host: 'Shardamc.aternos.me',
+    port: 43181,
+    username: 'Yash_AFK_Bot'
+  })
 
-  // Server par join karte hi:
-  bot.on('spawn', () => {
-    console.log('✅ Bot Shardamc server par online aagaya hai!');
-    
-    // Anti-AFK: Har 30 second me jump karega
-    setInterval(() => {
-      if (bot && bot.entity) {
-        bot.setControlState('jump', true);
-        setTimeout(() => bot.setControlState('jump', false), 500);
-      }
-    }, 30000);
-  });
-
-  bot.on('chat', (username, message) => {
-    if (username === bot.username) return;
-    console.log(`[CHAT] ${username}: ${message}`);
-  });
-
-  bot.on('kicked', (reason) => {
-    console.log('❌ Bot kick hua. Wajeh:', reason);
-  });
-
+  bot.on('spawn', () => console.log('✅ Bot Joined Server!'))
   bot.on('end', () => {
-    console.log('⚠️ Bot disconnect ho gaya. 10 seconds me reconnect kar raha hu...');
-    setTimeout(startBot, 10000);
-  });
-
-  bot.on('error', (err) => {
-    console.log('⚠️ Error coming:', err.message);
-  });
+    console.log('Disconnect ho gaya, 5 sec mein reconnect kar raha hu...')
+    setTimeout(createBot, 5000)
+  })
+  bot.on('error', err => console.log('Error:', err))
 }
 
-startBot();
+createBot()
+
 
